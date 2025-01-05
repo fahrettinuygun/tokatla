@@ -13,11 +13,14 @@ body {
     justify-content: center;
     height: 100vh;
     background-color: #f0e68c;
+    overflow: hidden;
 }
 
 #character {
     width: 500px;
+    max-width: 100%;
     height: 500px;
+    max-height: 80vh;
     background-image: url('./public/img/char.png'); /* Çirkin karakter resmi */
     background-size: cover;
 }
@@ -137,61 +140,86 @@ body {
     <audio id="big-slap-sound" src="./public/sound/aduket.mp3"></audio> <!-- Büyük tokat sesi dosyası -->
     <script>
         let slapCount = 0;
-const character = document.getElementById('character');
-const counter = document.getElementById('counter');
-const slapSound = document.getElementById('slap-sound');
-const bigSlapSound = document.getElementById('big-slap-sound');
-const explosion = document.getElementById('explosion');
-const boom = document.getElementById('boom');
+        let longPressTimer;
+        let isLongPress = false;
+        const character = document.getElementById('character');
+        const counter = document.getElementById('counter');
+        const slapSound = document.getElementById('slap-sound');
+        const bigSlapSound = document.getElementById('big-slap-sound');
+        const explosion = document.getElementById('explosion');
+        const boom = document.getElementById('boom');
 
-character.addEventListener('click', (event) => {
-    slapCount++;
-    counter.textContent = `Tokat Sayısı: ${slapCount}`;
-    slapSound.play();
 
-    boom.style.top = `${event.clientY - 50}px`;
-    boom.style.left = `${event.clientX - 50}px`;
-    boom.classList.add('boom');
-    boom.style.display = 'block';
+        const slap = (event) =>{
+            slapCount++;
+            counter.textContent = `Tokat Sayısı: ${slapCount}`;
+            slapSound.play();
 
-    // Titreme animasyonu
-    character.classList.add('shake');
-    setTimeout(() => {
-        character.classList.remove('shake');
-        boom.classList.remove('boom');
-        boom.style.display = 'none';
-    }, 500); // 500ms sonra titreme animasyonunu kaldır
-});
+            boom.style.top = `${event?.clientY - 50}px`;
+            boom.style.left = `${event?.clientX - 50}px`;
+            boom.classList.add('boom');
+            boom.style.display = 'block';
 
-character.addEventListener('mouseover', () => {
-    document.body.style.cursor = 'url("./public/img/slap.png"), pointer';
-});
+            // Titreme animasyonu
+            character.classList.add('shake');
+            setTimeout(() => {
+                character.classList.remove('shake');
+                boom.classList.remove('boom');
+                boom.style.display = 'none';
+            }, 500); // 500ms sonra titreme animasyonunu kaldır
+        }
 
-// İmleç karakterin üzerinden ayrıldığında varsayılan imlece dönsün
-character.addEventListener('mouseout', () => {
-    document.body.style.cursor = 'auto';
-});
+        const aduket = (event) => {
+            isLongPress = true;
+            slapCount += 5;
+            counter.textContent = `Tokat Sayısı: ${slapCount}`;
+            event?.preventDefault(); // Sağ tıklama menüsünü engelle
+            bigSlapSound.play();
 
-// Sağ tıklama olayını dinle
-character.addEventListener('contextmenu', (event) => {
-    slapCount += 5;
-    counter.textContent = `Tokat Sayısı: ${slapCount}`;
-    event.preventDefault(); // Sağ tıklama menüsünü engelle
-    bigSlapSound.play();
+            explosion.style.top = `${event?.clientY - 250}px`;
+            explosion.style.left = `${event?.clientX - 250}px`;
+            explosion.classList.add('explode');
+            explosion.style.display = 'block';
 
-    explosion.style.top = `${event.clientY - 250}px`;
-    explosion.style.left = `${event.clientX - 250}px`;
-    explosion.classList.add('explode');
-    explosion.style.display = 'block';
+            // Büyük titreme animasyonu
+            character.classList.add('big-shake');
+            setTimeout(() => {
+                character.classList.remove('big-shake');
+                explosion.classList.remove('explode');
+                explosion.style.display = 'none';
+            }, 500); // 500ms sonra büyük titreme animasyonunu kaldır
+        };
 
-    // Büyük titreme animasyonu
-    character.classList.add('big-shake');
-    setTimeout(() => {
-        character.classList.remove('big-shake');
-        explosion.classList.remove('explode');
-        explosion.style.display = 'none';
-    }, 500); // 500ms sonra büyük titreme animasyonunu kaldır
-});
+        character.addEventListener('click', slap);
+
+        character.addEventListener('mouseover', () => {
+            document.body.style.cursor = 'url("./public/img/slap.png"), pointer';
+        });
+
+        // İmleç karakterin üzerinden ayrıldığında varsayılan imlece dönsün
+        character.addEventListener('mouseout', () => {
+            document.body.style.cursor = 'auto';
+        });
+
+        const handleTouchStart = (e) => {
+            e.preventDefault();
+            isLongPress = false;
+            longPressTimer = setTimeout(aduket, 500); // 1000ms = 1 second
+        };
+
+        const handleTouchEnd = (e) => {
+            e.preventDefault();
+            clearTimeout(longPressTimer);
+            if(!isLongPress) {
+                slap(e);
+            }
+        };
+
+        character.addEventListener('touchstart', handleTouchStart);
+        character.addEventListener('touchend', handleTouchEnd);
+
+        
+        character.addEventListener('contextmenu', aduket);
     </script>
 </body>
 </html>
