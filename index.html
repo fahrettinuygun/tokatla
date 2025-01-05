@@ -149,14 +149,27 @@ body {
         const explosion = document.getElementById('explosion');
         const boom = document.getElementById('boom');
 
+        const isMobileDevice = () => {
+            return /Mobi|Android/i.test(navigator.userAgent);
+        };
 
         const slap = (event) =>{
             slapCount++;
             counter.textContent = `Tokat Sayısı: ${slapCount}`;
             slapSound.play();
+            let clientX = 0, clientY = 0;
 
-            boom.style.top = `${event?.clientY - 50}px`;
-            boom.style.left = `${event?.clientX - 50}px`;
+            if (isMobileDevice() && event?.touches) {
+                // Mobil cihazlarda dokunma olayları
+                clientX = event?.touches[0]?.clientX;
+                clientY = event?.touches[0]?.clientY;
+            } else {
+                // Fare olayları
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
+            boom.style.top = `${clientY - 50}px`;
+            boom.style.left = `${clientX - 50}px`;
             boom.classList.add('boom');
             boom.style.display = 'block';
 
@@ -175,9 +188,19 @@ body {
             counter.textContent = `Tokat Sayısı: ${slapCount}`;
             event?.preventDefault(); // Sağ tıklama menüsünü engelle
             bigSlapSound.play();
+            let clientX = 0, clientY = 0;
 
-            explosion.style.top = `${event?.clientY - 250}px`;
-            explosion.style.left = `${event?.clientX - 250}px`;
+            if (isMobileDevice() && event?.touches) {
+                // Mobil cihazlarda dokunma olayları
+                clientX = event?.touches[0]?.clientX;
+                clientY = event?.touches[0]?.clientY;
+            } else {
+                // Fare olayları
+                clientX = event?.clientX;
+                clientY = event?.clientY;
+            }
+            explosion.style.top = `${clientY - 250}px`;
+            explosion.style.left = `${clientX - 250}px`;
             explosion.classList.add('explode');
             explosion.style.display = 'block';
 
