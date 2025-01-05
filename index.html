@@ -134,6 +134,7 @@ body {
 <body>
     <div id="counter">Tokat Sayısı: 0</div>
     <div id="character"></div>
+    <div id="explanation" style="display: none;"><h2 style="font-weight: bold;">Pişmanım ve devletime hizmet etmeye hazırım.</h2></div>
     <div id="explosion" style="display: none;"></div> <!-- Patlama div'i -->
     <div id="boom" style="display: none;"></div> <!-- Patlama div'i -->
     <audio id="slap-sound" src="./public/sound/slap.mp3"></audio> <!-- Tokat sesi dosyası -->
@@ -151,6 +152,20 @@ body {
 
         const isMobileDevice = () => {
             return /Mobi|Android/i.test(navigator.userAgent);
+        };
+
+        const updateImages = () => {
+            if(slapCount >= 5 && slapCount < 20) {
+                character.style.backgroundImage = "url('./public/img/char2.png')";
+            }
+            if (slapCount >= 20) {
+                character.style.backgroundImage = "url('./public/img/char3.png')";
+                boom.style.backgroundImage = "url('./public/img/blood.png')";
+                explosion.style.backgroundImage = "url('./public/img/blood.png')";
+            }
+            if(slapCount >= 50) {
+                document.getElementById('explanation').style.display = 'block';
+            }
         };
 
         const slap = (event) =>{
@@ -180,6 +195,8 @@ body {
                 boom.classList.remove('boom');
                 boom.style.display = 'none';
             }, 500); // 500ms sonra titreme animasyonunu kaldır
+
+            updateImages();
         }
 
         const aduket = (event) => {
@@ -211,6 +228,8 @@ body {
                 explosion.classList.remove('explode');
                 explosion.style.display = 'none';
             }, 500); // 500ms sonra büyük titreme animasyonunu kaldır
+
+            updateImages();
         };
 
         character.addEventListener('click', slap);
